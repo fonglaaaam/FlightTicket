@@ -33,8 +33,7 @@
 @end
 
 @implementation ViewController
-- (void)viewDidLoad {
-    [super viewDidLoad];
+- (void)viewWillAppear:(BOOL)animated{
     recvData = [NSMutableData data];
     urlData = [NSMutableData data];
     
@@ -49,10 +48,22 @@
     NSURL *url = [NSURL URLWithString:@"http://touch.qunar.com/h5/flight/citylist?type=11"];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     [NSURLConnection connectionWithRequest:request delegate:self];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
     
     _tableView = [[UITableView alloc]initWithFrame:CGRectZero style:UITableViewStyleGrouped];
+    _tableView.tag = 99;
     _tableView.delegate = self;
     _tableView.dataSource = self;
+    
+    UIView *backgroundView = [[UIView alloc]initWithFrame:CGRectZero];
+    backgroundView.tag = 99;
+    [self.view addSubview:backgroundView];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tap:)];
+    [backgroundView addGestureRecognizer:tap];
     
     oneWayBtn = [[UIButton alloc]initWithFrame:CGRectZero];
     oneWayBtn.backgroundColor = [UIColor redColor];
@@ -110,6 +121,11 @@
     [self.view addSubview:submitBtn];
     
     UIView *superView = self.view;
+    [backgroundView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.bottom.equalTo(superView.mas_centerY);
+        make.top.left.right.equalTo(superView);
+    }];
+    
     [oneWayBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.right.equalTo(superView.mas_centerX).offset(-40);
         make.top.equalTo(superView.mas_top).offset(80);
@@ -367,6 +383,12 @@ BOOL isStart;
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     return 30.0f;
+}
+
+-(void)tap:(UITapGestureRecognizer *)gesture{
+    if(gesture.view == [self.view viewWithTag:99]){
+        [_tableView removeFromSuperview];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
